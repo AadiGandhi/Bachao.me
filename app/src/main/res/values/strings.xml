@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Bachao.me</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="gps_network_not_enabled">Your GPS Service is not enabled. Please enable it to continue</string>
+    <string name="open_location_settings">Open Location Settings</string>
+    <string name="Cancel">Cancel</string>
+</resources>
