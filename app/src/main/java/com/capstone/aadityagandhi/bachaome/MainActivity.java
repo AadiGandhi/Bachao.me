@@ -16,6 +16,9 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.app.Activity;
+import android.widget.EditText;
+
+import java.lang.reflect.Array;
 
 public class MainActivity extends AppCompatActivity {
     private Context context = this.getBaseContext();
@@ -38,6 +41,13 @@ public class MainActivity extends AppCompatActivity {
     }
     public void goToMaps(View view){
         Intent intent = new Intent(this, MapsActivity.class);
+        EditText editText = (EditText)findViewById(R.id.myEditText);
+        String[] Str = editText.getText().toString().split(" ");
+        if(Str!=null) {
+
+            intent.putExtra("lat", Double.parseDouble(Str[0]));
+            intent.putExtra("long", Double.parseDouble(Str[1]));
+        }
         startActivity(intent);
     }
 
