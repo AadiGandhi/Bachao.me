@@ -31,8 +31,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/myText"
         android:id="@+id/myEditText"
-        android:inputType="number"
-        android:digits="1234567890 1234567890"
         />
 
 </RelativeLayout>

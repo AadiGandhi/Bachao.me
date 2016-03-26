@@ -16,30 +16,39 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+
+import com.capstone.aadityagandhi.bachaome.Utils.NetworkRequest;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.Console;
 import java.util.ArrayList;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, com.google.android.gms.location.LocationListener {
 
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
@@ -48,17 +57,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Double lat;
     private Double lng;
     private ArrayList<Location> mList = new ArrayList<Location>();
+    private String origin;
+    private String destination;
+    private String API = "AIzaSyBmQCvuy3H2m-w7CJkxOTZnWTNhCKHmF6I";
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -66,8 +79,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .build();
         checkLocationStatus(this);
         Bundle extra = getIntent().getExtras();
-        lat = extra.getDouble("lat", 0);
-        lng = extra.getDouble("long",0);
+        String[] Str = extra.get("latlng").toString().split(" ");
+        if(Str!=null) {
+
+            lat = Double.parseDouble(Str[0]);
+            lng =  Double.parseDouble(Str[1]);
+        }
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void checkLocationStatus(final Context context) {
@@ -78,11 +116,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         try {
             gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
         } catch (Exception ex) {
+            ex.printStackTrace();
         }
 
         try {
             network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
         } catch (Exception ex) {
+            ex.printStackTrace();
         }
         if (!(gps_enabled) && !(network_enabled)) {
             AlertDialog.Builder dialog = new AlertDialog.Builder(context, R.style.AppTheme);
@@ -106,33 +146,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             });
             dialog.show();
         }
-    }
-    private void drawPrimaryLinePath( ArrayList<Location> listLocsToDraw )
-    {
-        if ( mMap == null )
-        {
-            return;
-        }
-
-        if ( listLocsToDraw.size() < 2 )
-        {
-            return;
-        }
-
-        PolylineOptions options = new PolylineOptions();
-
-        options.color( Color.parseColor("#CC0000FF") );
-        options.width( 5 );
-        options.visible( true );
-
-        for ( Location locRecorded : listLocsToDraw )
-        {
-            options.add( new LatLng( locRecorded.getLatitude(),
-                    locRecorded.getLongitude() ) );
-        }
-
-        mMap.addPolyline( options );
-
     }
 
     @Override
@@ -182,32 +195,43 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 //mLocationRequest.setFastestInterval(fastestTime);
                 mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
                 //mLocationRequest.setSmallestDisplacement(distanceThreshold);
-                //LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, (com.google.android.gms.location.LocationListener)this);
+                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
             }
             if (mLastLocation != null) {
+                /*Origin*/
                 Log.d("mLastLocation: ", mLastLocation.toString());
-                LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-                mList.add(mLastLocation);
-//                mMap.addMarker(new MarkerOptions().position(latLng).title("Current Location"));
-//                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-//                CameraPosition myPosition = new CameraPosition.Builder().target(latLng).zoom(14).bearing(0).tilt(30).build();
-//                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(myPosition));
+                double temp = mLastLocation.getLatitude();
+                origin = String.valueOf(temp) + ",";
+                temp = mLastLocation.getLongitude();
+                origin += String.valueOf(temp);
 
+                /*Destination*/
+                LatLng latLng = new LatLng(lat, lng);
+                destination = String.valueOf(lat) + "," + String.valueOf(lng);
+                Log.d("latlng: ", latLng.toString());
+
+                /*Focus change*/
+                CameraPosition myPosition = new CameraPosition.Builder().target(latLng).zoom(14).bearing(0).tilt(30).build();
+                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                builder.include(new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude()));
+                builder.include(latLng);
+                LatLngBounds bounds = builder.build();
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0));
+                mMap.addMarker(new MarkerOptions().position(latLng).title("Distress Location"));
+
+            /*Fetching a route*/
+
+                NetworkRequest networkRequest = new NetworkRequest(getApplicationContext());
+                networkRequest.makeRequest(origin, destination, API, String.valueOf(false));
             }
-            LatLng latLng = new LatLng(lat,lng);
-            Log.d("latlng: ", latLng.toString());
-            CameraPosition myPosition = new CameraPosition.Builder().target(latLng).zoom(14).bearing(0).tilt(30).build();
-            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(myPosition));
-            mMap.addMarker(new MarkerOptions().position(latLng).title("User Location"));
-            Location deviceLocation = new Location("");
-            deviceLocation.setLatitude(lat);
-            deviceLocation.setLongitude(lng);
-            mList.add(deviceLocation);
-            drawPrimaryLinePath(mList);
+            else{
+                Toast.makeText(this,"Could not get a Location fix. Please Relaunch App",Toast.LENGTH_LONG).show();
+            }
 
         } catch (SecurityException e) {
             e.printStackTrace();
         }
+
     }
 
     @Override

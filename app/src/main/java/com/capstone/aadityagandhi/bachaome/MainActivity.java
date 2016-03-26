@@ -42,12 +42,7 @@ public class MainActivity extends AppCompatActivity {
     public void goToMaps(View view){
         Intent intent = new Intent(this, MapsActivity.class);
         EditText editText = (EditText)findViewById(R.id.myEditText);
-        String[] Str = editText.getText().toString().split(" ");
-        if(Str!=null) {
-
-            intent.putExtra("lat", Double.parseDouble(Str[0]));
-            intent.putExtra("long", Double.parseDouble(Str[1]));
-        }
+        intent.putExtra("latlng",editText.getText());
         startActivity(intent);
     }
 
@@ -71,6 +66,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    public Context getContext(){
+        return getApplicationContext();
     }
 
 
