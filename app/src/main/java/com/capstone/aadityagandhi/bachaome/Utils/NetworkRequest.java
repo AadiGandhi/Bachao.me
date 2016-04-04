@@ -38,7 +38,6 @@ public class NetworkRequest {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        //Snackbar.make(view,response.substring(0,500),Snackbar.LENGTH_INDEFINITE);
                         Toast.makeText(context, response.substring(0, 50), Toast.LENGTH_LONG);
                         Log.d("CustomTag","I am here: "+ response.substring(0,500));
                         try {
@@ -50,7 +49,7 @@ public class NetworkRequest {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(context,"This didnt work!",Toast.LENGTH_LONG);
+                Toast.makeText(context,"This didnt work!",Toast.LENGTH_LONG).show();
             }
         });
 // Add the request to the RequestQueue.

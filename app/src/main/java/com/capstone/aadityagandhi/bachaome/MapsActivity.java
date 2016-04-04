@@ -79,12 +79,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .build();
         checkLocationStatus(this);
         Bundle extra = getIntent().getExtras();
-        String[] Str = extra.get("latlng").toString().split(" ");
+        String string = extra.get("UID").toString();
+
+        /*String[] Str = extra.get("latlng").toString().split(" ");
         if(Str!=null) {
 
             lat = Double.parseDouble(Str[0]);
             lng =  Double.parseDouble(Str[1]);
-        }
+        }*/
+        lat = 12.0;
+        lng = 77.0;
+
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -52,7 +52,7 @@
         android:text="Add new ID!"
         android:layout_below="@+id/myEditText"
         android:id="@+id/myButton"
-        android:onClick="goToMaps"
+        android:onClick="Add"
         />
 
     <Button

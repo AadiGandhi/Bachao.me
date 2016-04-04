@@ -45,18 +45,22 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
 
                 Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
-                EditText editText = (EditText) findViewById(R.id.myEditText);
-                intent.putExtra("latlng", editText.getText());
+                RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radiogroup);
+                if(radioGroup.getChildCount()==0){
+                    Snackbar.make(view,"Add a UID first", Snackbar.LENGTH_LONG)
+                            .setAction("OK!", null).show();
+                    return;
+                }
+                RadioButton radioButton = (RadioButton) findViewById(radioGroup.getCheckedRadioButtonId());
+                intent.putExtra("UID", radioButton.getText().toString());
                 startActivity(intent);
             }
         });
         initializeRadioButtons();
     }
-    public void goToMaps(View view){
+    public void Add(View view){
         EditText editText = (EditText)findViewById(R.id.myEditText);
         dataStore.writeToApplicationStorage(editText.getText().toString(), DataStore.FILE_TYPE.UID, getApplicationContext());
         TextView textView = (TextView) findViewById(R.id.emptyMessage);
@@ -64,25 +68,6 @@ public class MainActivity extends AppCompatActivity {
         initializeRadioButtons();
     }
 
-
-    public void initializeRadioButtons(){
-        RadioGroup rg = (RadioGroup) findViewById(R.id.radiogroup);
-        int j=rg.getChildCount();
-        for (int i=0; i< j; i++){
-            rg.removeViewAt(0);
-        }
-        EditText editText = (EditText)findViewById(R.id.myEditText);
-        ArrayList<String> mList = new ArrayList<>();
-        mList = dataStore.readFromApplicationData(getApplicationContext(), DataStore.FILE_TYPE.UID.toString());
-        if(!mList.isEmpty()){
-            editText.setText(String.valueOf(mList.size()));
-            addRadioButtons(mList.size(),mList);
-        }
-        else {
-            editText.setText("Empty Array Returned");
-            addRadioButtons(mList.size(),mList);
-        }
-    }
 
     public void delete(View view){
         Snackbar.make(view, "Confirm Delete?", Snackbar.LENGTH_INDEFINITE)
@@ -138,7 +123,21 @@ public class MainActivity extends AppCompatActivity {
             rprms= new RadioGroup.LayoutParams(RadioGroup.LayoutParams.WRAP_CONTENT, RadioGroup.LayoutParams.WRAP_CONTENT);
             rgp.addView(radioButton, rprms);
         }
+        rgp.check(rgp.getChildAt(0).getId());
 
+    }
+
+
+    public void initializeRadioButtons(){
+        RadioGroup rg = (RadioGroup) findViewById(R.id.radiogroup);
+        int j=rg.getChildCount();
+        for (int i=0; i< j; i++){
+            rg.removeViewAt(0);
+        }
+        EditText editText = (EditText)findViewById(R.id.myEditText);
+        ArrayList<String> mList = new ArrayList<>();
+        mList = dataStore.readFromApplicationData(getApplicationContext(), DataStore.FILE_TYPE.UID.toString());
+        addRadioButtons(mList.size(),mList);
     }
 
     public Context getContext(){
