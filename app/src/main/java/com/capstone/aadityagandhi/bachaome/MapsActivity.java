@@ -212,6 +212,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 /*Focus change*/
                 CameraPosition myPosition = new CameraPosition.Builder().target(latLng).zoom(14).bearing(0).tilt(30).build();
+                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(myPosition));
                 LatLngBounds.Builder builder = new LatLngBounds.Builder();
                 builder.include(new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude()));
                 builder.include(latLng);

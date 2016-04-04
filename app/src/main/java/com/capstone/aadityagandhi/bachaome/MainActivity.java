@@ -16,12 +16,23 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.app.Activity;
+import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.capstone.aadityagandhi.bachaome.Utils.DataStore;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private Context context = this.getBaseContext();
+    private DataStore dataStore = new DataStore();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,15 +47,57 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+
+                Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+                EditText editText = (EditText) findViewById(R.id.myEditText);
+                intent.putExtra("latlng", editText.getText());
+                startActivity(intent);
             }
         });
+        initializeRadioButtons();
     }
     public void goToMaps(View view){
-        Intent intent = new Intent(this, MapsActivity.class);
         EditText editText = (EditText)findViewById(R.id.myEditText);
-        intent.putExtra("latlng",editText.getText());
-        startActivity(intent);
+        dataStore.writeToApplicationStorage(editText.getText().toString(), DataStore.FILE_TYPE.UID, getApplicationContext());
+        TextView textView = (TextView) findViewById(R.id.emptyMessage);
+        textView.setText("");
+        initializeRadioButtons();
     }
+
+
+    public void initializeRadioButtons(){
+        RadioGroup rg = (RadioGroup) findViewById(R.id.radiogroup);
+        int j=rg.getChildCount();
+        for (int i=0; i< j; i++){
+            rg.removeViewAt(0);
+        }
+        EditText editText = (EditText)findViewById(R.id.myEditText);
+        ArrayList<String> mList = new ArrayList<>();
+        mList = dataStore.readFromApplicationData(getApplicationContext(), DataStore.FILE_TYPE.UID.toString());
+        if(!mList.isEmpty()){
+            editText.setText(String.valueOf(mList.size()));
+            addRadioButtons(mList.size(),mList);
+        }
+        else {
+            editText.setText("Empty Array Returned");
+            addRadioButtons(mList.size(),mList);
+        }
+    }
+
+    public void delete(View view){
+        Snackbar.make(view, "Confirm Delete?", Snackbar.LENGTH_INDEFINITE)
+                .setAction("Delete!", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        RadioGroup rgp= (RadioGroup) findViewById(R.id.radiogroup);
+                        RadioButton radioButton = (RadioButton)findViewById(rgp.getCheckedRadioButtonId());
+                        String value = radioButton.getText().toString();
+                        dataStore.deleteFromApplicationData(DataStore.FILE_TYPE.UID, getApplicationContext(),value);
+                        initializeRadioButtons();
+                    }
+                }).show();
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -67,6 +120,27 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void addRadioButtons(int number, ArrayList<String> mList) {
+        if(number == 0){
+            TextView textView = (TextView) findViewById(R.id.emptyMessage);
+            textView.setText("NONE! Add one now!");
+            return;
+        }
+
+        RadioGroup rgp= (RadioGroup) findViewById(R.id.radiogroup);
+        RadioGroup.LayoutParams rprms;
+
+        for(int i=0;i<number;i++){
+            RadioButton radioButton = new RadioButton(this);
+            radioButton.setText(mList.get(i));
+            //radioButton.setId("rbtn"+i);
+            rprms= new RadioGroup.LayoutParams(RadioGroup.LayoutParams.WRAP_CONTENT, RadioGroup.LayoutParams.WRAP_CONTENT);
+            rgp.addView(radioButton, rprms);
+        }
+
+    }
+
     public Context getContext(){
         return getApplicationContext();
     }

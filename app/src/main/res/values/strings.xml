@@ -5,4 +5,8 @@
     <string name="gps_network_not_enabled">Your GPS Service is not enabled. Please enable it to continue</string>
     <string name="open_location_settings">Open Location Settings</string>
     <string name="Cancel">Cancel</string>
+    <string name="add_id">No account ids detected. Please Add a new id</string>
+    <string name="intro">Welcome!
+    The account id assosiated with the app are:
+    </string>
 </resources>
