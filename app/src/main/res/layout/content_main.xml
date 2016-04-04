@@ -10,21 +10,66 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.capstone.aadityagandhi.bachaome.MainActivity"
-    tools:showIn="@layout/activity_main">
+    tools:showIn="@layout/activity_main"
+    android:id="@+id/activityMainLayout"
+    >
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:id="@+id/intro"
+        android:text="@string/intro"
+        />
+
+
+    <RadioGroup
+        android:id="@+id/radiogroup"
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_below="@id/intro"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/emptyMessage"
+        android:layout_below="@id/radiogroup"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add new id:-"
         android:id="@+id/myText"
+        android:layout_below="@id/emptyMessage"
         />
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Click Me!"
-        android:layout_below="@+id/myText"
+        android:text="Add new ID!"
+        android:layout_below="@+id/myEditText"
         android:id="@+id/myButton"
         android:onClick="goToMaps"
+        />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Delete Selected!"
+        android:layout_below="@+id/myButton"
+        android:id="@+id/myButton2"
+        android:onClick="delete"
+        />
+
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/myText"
+        android:id="@+id/myEditText"
         />
 
 </RelativeLayout>
