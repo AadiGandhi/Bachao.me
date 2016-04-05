@@ -7,13 +7,16 @@
          Google Maps Android API v2, but you must specify either coarse or fine
          location permissions for the 'MyLocation' functionality. 
     -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.google.android.c2dm.intent.REGISTRATION"/>
     <permission android:name="com.capstone.aadityagandhi.bachaome.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
     <uses-permission android:name="com.capstone.aadityagandhi.bachaome.permission.C2D_MESSAGE" />
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -57,23 +60,25 @@
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <category android:name="com.example.gcm" />
+                <category android:name="com.capstone.aadityagandhi.bachaome" />
             </intent-filter>
         </receiver>
+        <service android:name="com.capstone.aadityagandhi.bachaome.Utils.RegistrationIntentService" android:exported="false"/>
         <service
-            android:name="com.example.MyGcmListenerService"
+            android:name="com.capstone.aadityagandhi.bachaome.Utils.MyInstanceIDListenerService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.gms.iid.InstanceID"/>
+            </intent-filter>
+        </service>
+        <service
+            android:name="com.capstone.aadityagandhi.bachaome.Utils.GcmMessageHandler"
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
-        <service
-            android:name="com.example.MyInstanceIDListenerService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID" />
-            </intent-filter>
-        </service>
+
 
     </application>
 

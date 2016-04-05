@@ -3,15 +3,18 @@ package com.capstone.aadityagandhi.bachaome;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,40 +26,73 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.capstone.aadityagandhi.bachaome.Utils.DataStore;
+import com.capstone.aadityagandhi.bachaome.Utils.NetworkRequest;
+import com.capstone.aadityagandhi.bachaome.Utils.RegistrationIntentService;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.iid.InstanceID;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    private Context context = this.getBaseContext();
     private DataStore dataStore = new DataStore();
-
+    private NetworkRequest networkRequest;
+    public static JSONObject jsonObject;
+    public static Context context;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        context = getApplicationContext();
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-
-                Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
-                EditText editText = (EditText) findViewById(R.id.myEditText);
-                intent.putExtra("latlng", editText.getText());
-                startActivity(intent);
+                RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radiogroup);
+                if (radioGroup.getChildCount() == 0) {
+                    Snackbar.make(view, "Add a UID first", Snackbar.LENGTH_LONG)
+                            .setAction("OK!", null).show();
+                    return;
+                }
+                networkRequest = new NetworkRequest(getApplicationContext());
+                Toast.makeText(getApplicationContext(), "Making Request for location!", Toast.LENGTH_LONG).show();
+                RadioButton radioButton = (RadioButton) findViewById(radioGroup.getCheckedRadioButtonId());
+                networkRequest.requestLocation(radioButton.getText().toString());
             }
         });
         initializeRadioButtons();
+        Intent intent = new Intent(this, RegistrationIntentService.class);
+        startService(intent);
+
     }
-    public void goToMaps(View view){
+
+    public static void launchActivity(Context context){
+        Intent intent = new Intent(context, MapsActivity.class);
+        String latlng = "";
+        try {
+            latlng = String.valueOf(jsonObject.get("latitude"))+" ";
+            latlng+= String.valueOf(jsonObject.get("longitude"));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        intent.putExtra("latlng", latlng);
+        intent.putExtra("jsonObject", jsonObject.toString());
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+
+    }
+
+
+    public void Add(View view){
         EditText editText = (EditText)findViewById(R.id.myEditText);
         dataStore.writeToApplicationStorage(editText.getText().toString(), DataStore.FILE_TYPE.UID, getApplicationContext());
         TextView textView = (TextView) findViewById(R.id.emptyMessage);
@@ -64,25 +100,6 @@ public class MainActivity extends AppCompatActivity {
         initializeRadioButtons();
     }
 
-
-    public void initializeRadioButtons(){
-        RadioGroup rg = (RadioGroup) findViewById(R.id.radiogroup);
-        int j=rg.getChildCount();
-        for (int i=0; i< j; i++){
-            rg.removeViewAt(0);
-        }
-        EditText editText = (EditText)findViewById(R.id.myEditText);
-        ArrayList<String> mList = new ArrayList<>();
-        mList = dataStore.readFromApplicationData(getApplicationContext(), DataStore.FILE_TYPE.UID.toString());
-        if(!mList.isEmpty()){
-            editText.setText(String.valueOf(mList.size()));
-            addRadioButtons(mList.size(),mList);
-        }
-        else {
-            editText.setText("Empty Array Returned");
-            addRadioButtons(mList.size(),mList);
-        }
-    }
 
     public void delete(View view){
         Snackbar.make(view, "Confirm Delete?", Snackbar.LENGTH_INDEFINITE)
@@ -138,7 +155,21 @@ public class MainActivity extends AppCompatActivity {
             rprms= new RadioGroup.LayoutParams(RadioGroup.LayoutParams.WRAP_CONTENT, RadioGroup.LayoutParams.WRAP_CONTENT);
             rgp.addView(radioButton, rprms);
         }
+        rgp.check(rgp.getChildAt(0).getId());
 
+    }
+
+
+    public void initializeRadioButtons(){
+        RadioGroup rg = (RadioGroup) findViewById(R.id.radiogroup);
+        int j=rg.getChildCount();
+        for (int i=0; i< j; i++){
+            rg.removeViewAt(0);
+        }
+        EditText editText = (EditText)findViewById(R.id.myEditText);
+        ArrayList<String> mList = new ArrayList<>();
+        mList = dataStore.readFromApplicationData(getApplicationContext(), DataStore.FILE_TYPE.UID.toString());
+        addRadioButtons(mList.size(),mList);
     }
 
     public Context getContext(){

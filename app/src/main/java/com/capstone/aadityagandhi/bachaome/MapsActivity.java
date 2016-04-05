@@ -44,6 +44,9 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.Console;
 import java.util.ArrayList;
 
@@ -60,6 +63,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String origin;
     private String destination;
     private String API = "AIzaSyBmQCvuy3H2m-w7CJkxOTZnWTNhCKHmF6I";
+    private JSONObject jsonObject = new JSONObject();
+
 
 
     @Override
@@ -78,18 +83,31 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .addApi(LocationServices.API)
                 .build();
         checkLocationStatus(this);
+
+
         Bundle extra = getIntent().getExtras();
         String[] Str = extra.get("latlng").toString().split(" ");
-        if(Str!=null) {
+        if(Str[0]!="") {
 
             lat = Double.parseDouble(Str[0]);
             lng =  Double.parseDouble(Str[1]);
         }
+        else {
+            lat = 12.0;
+            lng = 77.0;
+        }
+        /*try {
+            jsonObject = new JSONObject(extra.get("jsonObject").toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }*/
+
+
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.map_menu, menu);
         return true;
     }
 
@@ -106,6 +124,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public boolean imageRequest(MenuItem menuItem){
+        return true;
     }
 
     private void checkLocationStatus(final Context context) {
@@ -214,16 +236,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 CameraPosition myPosition = new CameraPosition.Builder().target(latLng).zoom(14).bearing(0).tilt(30).build();
                 mMap.animateCamera(CameraUpdateFactory.newCameraPosition(myPosition));
                 LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                builder.include(new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude()));
+                builder.include(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
                 builder.include(latLng);
                 LatLngBounds bounds = builder.build();
                 mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0));
                 mMap.addMarker(new MarkerOptions().position(latLng).title("Distress Location"));
-
-            /*Fetching a route*/
-
-                NetworkRequest networkRequest = new NetworkRequest(getApplicationContext());
-                networkRequest.makeRequest(origin, destination, API, String.valueOf(false));
             }
             else{
                 Toast.makeText(this,"Could not get a Location fix. Please Relaunch App",Toast.LENGTH_LONG).show();
