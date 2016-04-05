@@ -126,8 +126,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         return super.onOptionsItemSelected(item);
     }
 
-    public void imageRequest(View view){
-
+    public boolean imageRequest(MenuItem menuItem){
+        return true;
     }
 
     private void checkLocationStatus(final Context context) {
@@ -236,7 +236,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 CameraPosition myPosition = new CameraPosition.Builder().target(latLng).zoom(14).bearing(0).tilt(30).build();
                 mMap.animateCamera(CameraUpdateFactory.newCameraPosition(myPosition));
                 LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                builder.include(new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude()));
+                builder.include(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
                 builder.include(latLng);
                 LatLngBounds bounds = builder.build();
                 mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0));
