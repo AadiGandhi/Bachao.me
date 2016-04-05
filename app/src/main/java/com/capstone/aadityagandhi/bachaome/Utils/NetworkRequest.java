@@ -10,6 +10,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.capstone.aadityagandhi.bachaome.MainActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,6 +30,38 @@ public class NetworkRequest {
         queue = Volley.newRequestQueue(context);
         this.context = context;
     }
+
+    public JSONObject requestLocation(String UID){
+        Log.d("CustomTag","Making a Network Request here!");
+        String url = "http://capstone.bitnamiapp.com/capstone/get_coordinates.php?device_id=";
+        url+=UID;
+        //main_device
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("CustomTag","JSON fetched from server: "+ response);
+                        try {
+                            MainActivity.jsonObject = new JSONObject(response);
+                            MainActivity.launchActivity(context);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(context,"This didnt work!",Toast.LENGTH_LONG).show();
+                Log.d("CustomTag","Request Failed!");
+            }
+        });
+// Add the request to the RequestQueue.
+        queue.add(stringRequest);
+        return jsonObject;
+    }
+
     public JSONObject makeRequest(String origin, String destination,String key,String alternatives){
         url+="origin="+origin+"&";
         url+="destination="+destination+"&";

@@ -23,43 +23,67 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.capstone.aadityagandhi.bachaome.Utils.DataStore;
+import com.capstone.aadityagandhi.bachaome.Utils.NetworkRequest;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    private Context context = this.getBaseContext();
     private DataStore dataStore = new DataStore();
-
+    private NetworkRequest networkRequest;
+    public static JSONObject jsonObject;
+    public static Context context;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        context = getApplicationContext();
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
                 RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radiogroup);
                 if(radioGroup.getChildCount()==0){
                     Snackbar.make(view,"Add a UID first", Snackbar.LENGTH_LONG)
                             .setAction("OK!", null).show();
                     return;
                 }
+                networkRequest = new NetworkRequest(getApplicationContext());
+                Toast.makeText(getApplicationContext(),"Making Request for location!",Toast.LENGTH_LONG).show();
                 RadioButton radioButton = (RadioButton) findViewById(radioGroup.getCheckedRadioButtonId());
-                intent.putExtra("UID", radioButton.getText().toString());
-                startActivity(intent);
+                networkRequest.requestLocation(radioButton.getText().toString());
             }
         });
         initializeRadioButtons();
     }
+
+    public static void launchActivity(Context context){
+        Intent intent = new Intent(context, MapsActivity.class);
+        String latlng = "";
+        try {
+            latlng = String.valueOf(jsonObject.get("latitude"))+" ";
+            latlng+= String.valueOf(jsonObject.get("longitude"));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        intent.putExtra("latlng", latlng);
+        intent.putExtra("jsonObject", jsonObject.toString());
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+
+    }
+
+
     public void Add(View view){
         EditText editText = (EditText)findViewById(R.id.myEditText);
         dataStore.writeToApplicationStorage(editText.getText().toString(), DataStore.FILE_TYPE.UID, getApplicationContext());
