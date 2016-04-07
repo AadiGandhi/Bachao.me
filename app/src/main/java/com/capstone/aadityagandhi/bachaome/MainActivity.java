@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private NetworkRequest networkRequest;
     public static JSONObject jsonObject;
     public static Context context;
+    public static String reg_id;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,15 +77,6 @@ public class MainActivity extends AppCompatActivity {
 
     public static void launchActivity(Context context){
         Intent intent = new Intent(context, MapsActivity.class);
-        String latlng = "";
-        try {
-            latlng = String.valueOf(jsonObject.get("latitude"))+" ";
-            latlng+= String.valueOf(jsonObject.get("longitude"));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        intent.putExtra("latlng", latlng);
         intent.putExtra("jsonObject", jsonObject.toString());
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
@@ -97,6 +89,9 @@ public class MainActivity extends AppCompatActivity {
         dataStore.writeToApplicationStorage(editText.getText().toString(), DataStore.FILE_TYPE.UID, getApplicationContext());
         TextView textView = (TextView) findViewById(R.id.emptyMessage);
         textView.setText("");
+        editText.setText("");
+        Intent intent = new Intent(this, RegistrationIntentService.class);
+        startService(intent);
         initializeRadioButtons();
     }
 

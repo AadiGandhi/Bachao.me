@@ -64,6 +64,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String destination;
     private String API = "AIzaSyBmQCvuy3H2m-w7CJkxOTZnWTNhCKHmF6I";
     private JSONObject jsonObject = new JSONObject();
+    private String device_id = "Distress Location";
+    private Boolean showImage = false;
+    private Context context;
 
 
 
@@ -71,7 +74,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.maptoolbar);
         setSupportActionBar(toolbar);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -83,26 +86,40 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .addApi(LocationServices.API)
                 .build();
         checkLocationStatus(this);
-
-
+        context = getApplicationContext();
+        lat = 12.0;
+        lng = 77.0;
         Bundle extra = getIntent().getExtras();
-        String[] Str = extra.get("latlng").toString().split(" ");
-        if(Str[0]!="") {
-
-            lat = Double.parseDouble(Str[0]);
-            lng =  Double.parseDouble(Str[1]);
+        if(extra.containsKey("notification")) {
+            try {
+                jsonObject = new JSONObject(extra.getString("json"));
+                lat = Double.parseDouble(jsonObject.getString("latitude"));
+                lng = Double.parseDouble(jsonObject.getString("longitude"));
+                device_id = jsonObject.getString("device_id");
+                showImage = true;
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
-        else {
-            lat = 12.0;
-            lng = 77.0;
+        else{
+            try {
+                jsonObject = new JSONObject(extra.getString("jsonObject"));
+                lat = Double.parseDouble(jsonObject.getString("latitude"));
+                lng = Double.parseDouble(jsonObject.getString("longitude"));
+                device_id = jsonObject.getString("device_id");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
-        /*try {
-            jsonObject = new JSONObject(extra.get("jsonObject").toString());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }*/
 
 
+    }
+
+    public void showImage(View view){
+        Intent intent = new Intent(context,WebViewActivity.class);
+        intent.putExtra("device_id", device_id);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -119,7 +136,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.map_action_settings) {
             return true;
         }
 
@@ -127,6 +144,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public boolean imageRequest(MenuItem menuItem){
+        //TODO add webview to view image
+        if(!showImage)Toast.makeText(getApplicationContext(),"Can only request in distress Situation",
+                Toast.LENGTH_LONG).show();
         return true;
     }
 
