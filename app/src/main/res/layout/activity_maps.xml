@@ -9,21 +9,39 @@
     tools:context="com.capstone.aadityagandhi.bachaome.MapsActivity"
     style="@style/AppTheme.NoActionBar"
     >
-
-    <android.support.design.widget.AppBarLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:layout_height="match_parent"
+        android:id="@+id/maptoolbarparent"
+        >
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+        <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            android:layout_height="wrap_content"
+            android:theme="@style/AppTheme.AppBarOverlay"
+            android:layout_above="@+id/map"
+            android:id="@+id/view">
 
-    </android.support.design.widget.AppBarLayout>
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/maptoolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/AppTheme.PopupOverlay"
+                />
 
-    <include layout="@layout/content_maps" />
+        </android.support.design.widget.AppBarLayout>
 
+        <include layout="@layout/content_maps" />
+
+    </RelativeLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Get Image"
+        android:gravity="bottom"
+        android:foregroundGravity="bottom"
+        android:onClick="showImage"
+        />
 </android.support.design.widget.CoordinatorLayout>

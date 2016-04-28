@@ -15,6 +15,8 @@ import com.capstone.aadityagandhi.bachaome.MainActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 /**
  * Created by aaditya.gandhi on 3/19/16.
  * This handles the network request being made to the Google Direction API
@@ -25,6 +27,8 @@ public class NetworkRequest {
     private String url = "https://maps.googleapis.com/maps/api/directions/json?";
     private Context context;
     private JSONObject jsonObject;
+    private DataStore dataStore = new DataStore();
+    private StringRequest stringRequest;
 
     public NetworkRequest(Context context){
         queue = Volley.newRequestQueue(context);
@@ -60,6 +64,25 @@ public class NetworkRequest {
 // Add the request to the RequestQueue.
         queue.add(stringRequest);
         return jsonObject;
+    }
+    public void sendRegDevicesToServer(String token,String UID){
+        String url = "http://capstone.bitnamiapp.com/capstone/register.php?";
+            url+="reg_id="+token;
+            url+="&device_id="+UID;
+            Log.d("CustomTag: ", url);
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            Log.d("CustomTag", "DAFAQ! " + response);
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(context, "This didnt work!", Toast.LENGTH_LONG).show();
+                }
+            });
+        queue.add(stringRequest);
     }
 
     public JSONObject makeRequest(String origin, String destination,String key,String alternatives){
